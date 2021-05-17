@@ -58,14 +58,24 @@ spec:
                 secretKeyRef:
                   name: {{ template "steadybit-agent.fullname" . }}
                   key: key
+            - name: STEADYBIT_KUBERNETES_CLUSTER_NAME
+              value: {{ .Values.cluster.name | quote }}
             - name: POD_IP
               valueFrom:
                 fieldRef:
                   fieldPath: status.podIP
+            - name: STEADYBIT_AGENT_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: STEADYBIT_AGENT_POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
             {{- range $key, $value := .Values.agent.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}
-            {{- end }}
+          {{- end }}
           securityContext:
             privileged: true
           volumeMounts:
@@ -107,14 +117,14 @@ spec:
             path: /var/lib/steadybit-agent
         - name: container-sock
           hostPath:
-            path: {{ include "container-sock" . }}
+            path: {{ include "container-sock-host-path" . }}
         - name: cgroup-root
           hostPath:
             path: /sys/fs/cgroup
         {{- if include "runc-root" . }}
         - name: runc-root
           hostPath:
-            path: {{ include "runc-root" . }}
+            path: {{ include "runc-root-host-path" . }}
         {{- end }}
         {{- if .Values.agent.additionalVolumes }}
         {{- range $index,$backend := .Values.agent.additionalVolumes }}

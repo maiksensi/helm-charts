@@ -9,11 +9,10 @@ agent:
   # agent.registerUrl -- The URL of the steadybit server your agents will connect to.
   registerUrl: https://platform.steadybit.io
   # agent.additionalVolumes -- Additional volumes to which the agent container will be mounted.
-  additionalVolumes: []
-  # additionalVolumes:
   #  - name: tmp # Volume's name.
   #    mountPath: /tmp # Path within the container at which the volume should be mounted.
   #    hostPath: /tmp # Pre-existing file or directory on the host machine
+  additionalVolumes: []
   # agent.containerRuntime -- The container runtime to be used. Valid values:
   #    docker     = uses the docker runtime.
   #                 Will mount [/var/run/docker.sock]
@@ -25,10 +24,19 @@ agent:
   #                 Will mount [/run/containerd/containerd.sock, /run/containerd/runc/k8s.io]
   #
   containerRuntime: docker
+  # agent.containerRuntimeSocket -- use this to override the host path for the container runtime socket to mount. By default it is derived from containerRuntime
+  containerRuntimeSocket: null
+  # agent.runcRoot -- use this to override the host path for the runc root path to mount. By default it is derived from containerRuntime
+  runcRoot: null
+
   # agent.env -- Additional environment variables for the steadybit agent
   env: {}
   # agent.extraLabels -- Additional labels
   extraLabels: {}
+
+cluster:
+  # cluster.name Represents the name that will be assigned to this Kubernetes cluster in steadybit
+  name: null
 
 image:
   # image.name -- The container image to use of the steadybit agent.
@@ -47,14 +55,14 @@ priorityClassName:
 
 resources:
   requests:
-    # requests.memory -- The minimal amount of memory needed 
+    # requests.memory -- The minimal amount of memory needed
     memory: "512Mi"
     # requests.cpu -- The minimal amount of cpu shares needed
-    cpu: "500m"
+    cpu: "250m"
   limits:
-    # requests.memory -- The limit of memory to be used 
-    memory: "512Mi"
-    # requests.cpu -- The limit of cpu share to be used during its interval 
+    # requests.memory -- The limit of memory to be used
+    memory: "768Mi"
+    # requests.cpu -- The limit of cpu share to be used during its interval
     cpu: "1500m"
 
 updateStrategy:
@@ -66,6 +74,8 @@ updateStrategy:
 rbac:
   # rbac.create -- Specifies whether RBAC resources should be created.
   create: true
+  # rbac.readonly -- Specifies if Kubernetes API access should only be read only.
+  readonly: false
 
 serviceAccount:
   # serviceAccount.create -- Specifies whether a ServiceAccount should be created.
